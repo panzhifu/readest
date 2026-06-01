@@ -4,4 +4,6 @@ export const track = () => {};
 export const identify = () => {};
 export const getTelemetryDecision = () => false;
 export const setTelemetryDecision = () => {};
+export const optInTelemetry = () => {};
+export const optOutTelemetry = () => {};
 export const rollIntoTelemetryPromptBucket = () => false;
