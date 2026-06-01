@@ -165,18 +165,39 @@ export class ReedyDb {
     });
   }
 
+  // Native (rusqlite) backend needs FTS5 virtual table;
+  // turso WASM has its own tantivy-FTS via CREATE INDEX USING fts.
+  // Both paths are best-effort — the try/catch in hybridSearch gracefully
+  // returns empty FTS results when either index is unavailable.
+  private async ensureFts5Table(): Promise<void> {
+    try {
+      await this.db.execute(
+        "CREATE VIRTUAL TABLE IF NOT EXISTS reedy_book_chunks_fts USING fts5(chunk_id UNINDEXED, text, tokenize='ngram')",
+      );
+    } catch {
+      // turso WASM doesn't support FTS5 — ignore
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // bulk writes
   // ---------------------------------------------------------------------------
 
   async insertChunks(chunks: ChunkRow[]): Promise<void> {
     if (chunks.length === 0) return;
+    await this.ensureFts5Table();
     const stmts = chunks.map(
       (c) =>
         `INSERT INTO reedy_book_chunks
-           (id, book_hash, section_index, chapter_title, start_cfi, end_cfi, position_index, text, token_count)
-         VALUES (${sqlQuote(c.id)}, ${sqlQuote(c.bookHash)}, ${c.sectionIndex}, ${sqlQuoteNullable(c.chapterTitle)}, ${sqlQuote(c.startCfi)}, ${sqlQuote(c.endCfi)}, ${c.positionIndex}, ${sqlQuote(c.text)}, ${c.tokenCount})`,
+             (id, book_hash, section_index, chapter_title, start_cfi, end_cfi, position_index, text, token_count)
+           VALUES (${sqlQuote(c.id)}, ${sqlQuote(c.bookHash)}, ${c.sectionIndex}, ${sqlQuoteNullable(c.chapterTitle)}, ${sqlQuote(c.startCfi)}, ${sqlQuote(c.endCfi)}, ${c.positionIndex}, ${sqlQuote(c.text)}, ${c.tokenCount})`,
     );
+    // Sync into FTS5 index — chunk_id lets us JOIN back for hybrid search
+    for (const c of chunks) {
+      stmts.push(
+        `INSERT INTO reedy_book_chunks_fts(chunk_id, text) VALUES (${sqlQuote(c.id)}, ${sqlQuote(c.text)})`,
+      );
+    }
     await this.enqueue(() => this.db.batch(stmts));
   }
 
@@ -234,6 +255,11 @@ export class ReedyDb {
         ]);
       }
       await this.db.execute('DELETE FROM reedy_book_chunks WHERE book_hash = ?', [bookHash]);
+      // Also clean FTS5 index for this book's chunks
+      await this.db.execute(
+        'DELETE FROM reedy_book_chunks_fts WHERE chunk_id IN (SELECT id FROM reedy_book_chunks WHERE book_hash = ?)',
+        [bookHash],
+      );
     });
   }
 
@@ -244,6 +270,11 @@ export class ReedyDb {
       ]);
       await this.db.execute('DELETE FROM reedy_book_chunks WHERE book_hash = ?', [bookHash]);
       await this.db.execute('DELETE FROM reedy_book_meta WHERE book_hash = ?', [bookHash]);
+      // Clean FTS5 index for deleted book
+      await this.db.execute(
+        'DELETE FROM reedy_book_chunks_fts WHERE chunk_id IN (SELECT id FROM reedy_book_chunks WHERE book_hash = ?)',
+        [bookHash],
+      );
     });
   }
 
@@ -262,6 +293,7 @@ export class ReedyDb {
       await this.db.execute('DROP TABLE IF EXISTS reedy_book_chunk_embeddings');
       await this.db.execute('DROP TABLE IF EXISTS reedy_memory_embeddings');
       await this.db.execute('DELETE FROM reedy_book_chunks');
+      await this.db.execute('DELETE FROM reedy_book_chunks_fts');
       await this.db.execute('DELETE FROM reedy_memory');
     });
   }
@@ -501,24 +533,22 @@ export class ReedyDb {
       [serializeVector(queryEmbedding), bookHash, ...spoilerParam, fetchK],
     );
 
-    // FTS path — Tantivy BM25 over the chunks.text column.
+    // FTS5 full-text search over reedy_book_chunks_fts.
     let ftsRows: ScoredChunkRowSql[] = [];
     if (queryText.trim().length > 0) {
       try {
         ftsRows = await this.db.select<ScoredChunkRowSql>(
           `SELECT c.id, c.book_hash, c.section_index, c.chapter_title,
-                  c.start_cfi, c.end_cfi, c.position_index, c.text, c.token_count,
-                  fts_score(c.text, ?) AS metric
-             FROM reedy_book_chunks c
-            WHERE fts_match(c.text, ?) AND c.book_hash = ?${spoilerClause}
-            ORDER BY metric DESC
-            LIMIT ?`,
-          [queryText, queryText, bookHash, ...spoilerParam, fetchK],
+                      c.start_cfi, c.end_cfi, c.position_index, c.text, c.token_count,
+                      CAST(rank AS REAL) AS metric
+                 FROM reedy_book_chunks_fts f
+                 JOIN reedy_book_chunks c ON c.id = f.chunk_id
+                WHERE reedy_book_chunks_fts MATCH ? AND c.book_hash = ?${spoilerClause}
+                ORDER BY rank
+                LIMIT ?`,
+          [queryText, bookHash, ...spoilerParam, fetchK],
         );
       } catch {
-        // FTS index may legitimately be empty (no chunks yet) or the query
-        // may be malformed for Tantivy. The vector path is the primary
-        // signal; FTS is purely a lexical booster.
         ftsRows = [];
       }
     }

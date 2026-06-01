@@ -17,7 +17,9 @@ describe('Reedy migration', () => {
   let db: DatabaseService;
 
   beforeEach(async () => {
-    db = await NodeDatabaseService.open(':memory:', { experimental: ['index_method'] });
+    db = await NodeDatabaseService.open(':memory:', {
+      experimental: ['index_method'],
+    });
   });
 
   afterEach(async () => {
@@ -87,7 +89,7 @@ describe('Reedy migration', () => {
     );
 
     const matches = await db.select<{ id: string; text: string }>(
-      "SELECT id, text FROM reedy_book_chunks WHERE fts_match(text, 'alpha')",
+      "SELECT c.id, c.text FROM reedy_book_chunks c JOIN reedy_book_chunks_fts f ON c.id = f.chunk_id WHERE reedy_book_chunks_fts MATCH 'alpha'",
     );
     expect(matches).toHaveLength(1);
     expect(matches[0]!.id).toBe('c1');
