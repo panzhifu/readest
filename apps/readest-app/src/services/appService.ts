@@ -265,8 +265,12 @@ export abstract class BaseAppService implements AppService {
     });
   }
 
-  async deleteBook(book: Book, deleteAction: DeleteAction): Promise<void> {
-    return CloudSvc.deleteBook(this.fs, book, deleteAction);
+  async deleteBook(
+    book: Book,
+    deleteAction: DeleteAction,
+    webdavSettings?: SystemSettings['webdav'],
+  ): Promise<void> {
+    return CloudSvc.deleteBook(this.fs, book, deleteAction, webdavSettings);
   }
 
   async uploadFileToCloud(

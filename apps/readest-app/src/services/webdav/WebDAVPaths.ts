@@ -25,6 +25,7 @@ import { makeSafeFilename } from '@/utils/misc';
 export const WEBDAV_BASE_DIR = 'Readest';
 export const WEBDAV_BOOKS_DIR = 'books';
 export const WEBDAV_LIBRARY_FILE = 'library.json';
+export const WEBDAV_SETTINGS_FILE = 'settings.json';
 export const WEBDAV_BOOK_CONFIG_FILE = 'config.json';
 export const WEBDAV_BOOK_COVER_FILE = 'cover.png';
 
@@ -61,6 +62,10 @@ export const buildBookConfigPath = (rootPath: string, bookHash: string): string 
 /** Absolute path of the shared library.json index. */
 export const buildLibraryPath = (rootPath: string): string =>
   join(buildBasePath(rootPath), WEBDAV_LIBRARY_FILE);
+
+/** Absolute path of the shared settings.json file. */
+export const buildSettingsPath = (rootPath: string): string =>
+  join(buildBasePath(rootPath), WEBDAV_SETTINGS_FILE);
 
 /**
  * Friendly book file name "<sanitized title>.<ext>" used inside the

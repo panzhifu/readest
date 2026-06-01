@@ -9,7 +9,7 @@ import {
   isSyncCategoryLocked,
   type SyncCategory,
 } from '@/services/sync/syncCategories';
-import type { SystemSettings } from '@/types/settings';
+import type { SystemSettings, SyncMode } from '@/types/settings';
 
 interface CategoryCopy {
   title: string;
@@ -70,11 +70,17 @@ export function SyncCategoriesSection() {
 
   if (!settings) return null;
 
+  const handleSyncModeChange = (mode: SyncMode) => {
+    const updated: SystemSettings = {
+      ...settings,
+      syncMode: mode,
+    };
+    setSettings(updated);
+    void saveSettings(envConfig, updated);
+  };
+
   const enabled = (category: SyncCategory): boolean => {
     const value = settings.syncCategories?.[category];
-    // 'credentials' is the only category that defaults OFF — sync of
-    // sensitive fields (OPDS / KOSync / Readwise / Hardcover tokens) is
-    // explicit opt-in. Every other category defaults ON when unset.
     if (category === 'credentials') return value === true;
     return value !== false;
   };
@@ -101,6 +107,59 @@ export function SyncCategoriesSection() {
           )}
         </p>
       </div>
+      <div className='flex flex-col gap-3'>
+        <h4 className='text-base-content text-sm font-semibold'>{_('Sync Mode')}</h4>
+        <div className='flex flex-col gap-2'>
+          <label className='flex items-center gap-3'>
+            <input
+              type='radio'
+              name='syncMode'
+              value='cloud'
+              checked={settings.syncMode === 'cloud' || !settings.syncMode}
+              onChange={() => handleSyncModeChange('cloud')}
+              className='radio radio-primary'
+            />
+            <div className='flex flex-col'>
+              <span className='text-base-content text-sm font-medium'>{_('Official Cloud')}</span>
+              <span className='text-base-content/60 text-xs'>
+                {_('Sync using the official Readest cloud service')}
+              </span>
+            </div>
+          </label>
+          <label className='flex items-center gap-3'>
+            <input
+              type='radio'
+              name='syncMode'
+              value='webdav'
+              checked={settings.syncMode === 'webdav'}
+              onChange={() => handleSyncModeChange('webdav')}
+              className='radio radio-primary'
+            />
+            <div className='flex flex-col'>
+              <span className='text-base-content text-sm font-medium'>{_('WebDAV')}</span>
+              <span className='text-base-content/60 text-xs'>
+                {_('Sync using your own WebDAV server')}
+              </span>
+            </div>
+          </label>
+          <label className='flex items-center gap-3'>
+            <input
+              type='radio'
+              name='syncMode'
+              value='both'
+              checked={settings.syncMode === 'both'}
+              onChange={() => handleSyncModeChange('both')}
+              className='radio radio-primary'
+            />
+            <div className='flex flex-col'>
+              <span className='text-base-content text-sm font-medium'>{_('Both')}</span>
+              <span className='text-base-content/60 text-xs'>
+                {_('Sync using both official cloud and WebDAV')}
+              </span>
+            </div>
+          </label>
+        </div>
+      </div>
       <ul className='border-base-300 divide-base-300 divide-y rounded-lg border'>
         {SYNC_CATEGORIES.map((category) => {
           const c = copy[category];
@@ -122,10 +181,6 @@ export function SyncCategoriesSection() {
                 aria-disabled={locked}
                 checked={on}
                 onChange={(e) => {
-                  // Locked: visually stays ON (the dependency forces it),
-                  // but the user can't flip it off. We intercept the
-                  // change instead of using `disabled` so the toggle
-                  // keeps its blue "on" colour rather than greying out.
                   if (locked) return;
                   handleToggle(category, e.target.checked);
                 }}

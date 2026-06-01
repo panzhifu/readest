@@ -1,5 +1,6 @@
 import { AppService, FileSystem, BaseDir, DeleteAction } from '@/types/system';
 import { Book } from '@/types/book';
+import { WebDAVSettings } from '@/types/settings';
 import {
   getDir,
   getLocalBookFilename,
@@ -18,11 +19,13 @@ import { ClosableFile } from '@/utils/file';
 import { ProgressHandler } from '@/utils/transfer';
 import { CLOUD_BOOKS_SUBDIR, CLOUD_REPLICAS_SUBDIR } from './constants';
 import { isBookFileContentSource, resolveBookContentSource } from './bookContent';
+import { deleteRemoteBookDir } from './webdav/WebDAVSync';
 
 export async function deleteBook(
   fs: FileSystem,
   book: Book,
   deleteAction: DeleteAction,
+  webdavSettings?: WebDAVSettings,
 ): Promise<void> {
   if (deleteAction === 'local' || deleteAction === 'both') {
     const source = await resolveBookContentSource(fs, book);
@@ -32,8 +35,6 @@ export async function deleteBook(
           await fs.removeFile(source.path, source.base);
         }
       } catch (error) {
-        // Best effort: a missing/permission-denied source shouldn't block
-        // the metadata-side bookkeeping that follows.
         console.log('Failed to remove in-place source file:', error);
       }
     } else if (source.kind === 'managed') {
@@ -64,6 +65,14 @@ export async function deleteBook(
       }
     }
     book.uploadedAt = null;
+  }
+  if ((deleteAction === 'cloud' || deleteAction === 'both') && webdavSettings?.enabled) {
+    try {
+      await deleteRemoteBookDir(webdavSettings, book.hash);
+      console.log('Deleted WebDAV book directory for:', book.hash);
+    } catch (error) {
+      console.log('Failed to delete WebDAV book directory:', error);
+    }
   }
 }
 

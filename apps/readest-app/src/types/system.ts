@@ -157,7 +157,11 @@ export interface AppService {
   deleteDictionary(dict: ImportedDictionary): Promise<void>;
   importBook(file: string | File, books: Book[], options?: ImportBookOptions): Promise<Book | null>;
   refreshBookMetadata(book: Book): Promise<boolean>;
-  deleteBook(book: Book, deleteAction: DeleteAction): Promise<void>;
+  deleteBook(
+    book: Book,
+    deleteAction: DeleteAction,
+    webdavSettings?: SystemSettings['webdav'],
+  ): Promise<void>;
   uploadBook(book: Book, onProgress?: ProgressHandler): Promise<void>;
   downloadBook(
     book: Book,

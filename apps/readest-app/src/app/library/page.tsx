@@ -94,6 +94,7 @@ import { invoke } from '@tauri-apps/api/core';
 import useShortcuts from '@/hooks/useShortcuts';
 import { useReplicaPull } from '@/hooks/useReplicaPull';
 import { useCustomFonts } from '@/hooks/useCustomFonts';
+import { useWebDAVLibrarySync } from '@/hooks/useWebDAVLibrarySync';
 import DropIndicator from '@/components/DropIndicator';
 import SettingsDialog from '@/components/settings/SettingsDialog';
 import ModalPortal from '@/components/ModalPortal';
@@ -175,6 +176,8 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
   // library — the replica pull above is auth-gated and the reader's
   // FoliateViewer hydration never runs without a book open.
   useCustomFonts();
+  // Enable WebDAV library sync to automatically pull books from WebDAV server
+  useWebDAVLibrarySync();
   const [showCatalogManager, setShowCatalogManager] = useState(
     searchParams?.get('opds') === 'true',
   );
@@ -882,7 +885,7 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
       try {
         // Handle local deletion immediately
         if (deleteAction === 'local' || deleteAction === 'both') {
-          await appService?.deleteBook(book, 'local');
+          await appService?.deleteBook(book, 'local', settings.webdav);
           if (deleteAction === 'both') {
             book.deletedAt = Date.now();
             book.downloadedAt = null;
@@ -893,12 +896,11 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
           if (syncBooks) pushLibrary();
         }
 
-        // Queue cloud deletion
+        // Handle cloud deletion
         if (deleteAction === 'cloud' || deleteAction === 'both') {
-          const transferId = transferManager.queueDelete(book, 1, true);
-          if (!transferId) {
-            throw new Error('Failed to queue cloud deletion');
-          }
+          await appService?.deleteBook(book, 'cloud', settings.webdav);
+          book.uploadedAt = null;
+          await updateBook(envConfig, book);
         }
 
         eventDispatcher.dispatch('toast', {

@@ -214,8 +214,10 @@ const WebDAVForm: React.FC<WebDAVFormProps> = ({ onBack }) => {
 
   // Reading progress and annotations are always synced when WebDAV is
   // enabled — anyone bothering to set up cloud sync wants those. Only
-  // book files stay opt-in because they're bandwidth/storage heavy.
+  // book files and settings stay opt-in because they're bandwidth/storage heavy.
   const handleToggleSyncBooks = () => persistWebdav({ syncBooks: !(stored?.syncBooks ?? false) });
+  const handleToggleSyncSettings = () =>
+    persistWebdav({ syncSettings: !(stored?.syncSettings ?? false) });
   const handleStrategyChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     await persistWebdav({ strategy: e.target.value as typeof stored.strategy });
   };
@@ -600,6 +602,12 @@ const WebDAVForm: React.FC<WebDAVFormProps> = ({ onBack }) => {
               )}
               checked={stored.syncBooks ?? false}
               onChange={handleToggleSyncBooks}
+            />
+            <SettingsSwitchRow
+              label={_('Sync Settings')}
+              description={_('Sync app settings across devices via WebDAV.')}
+              checked={stored.syncSettings ?? false}
+              onChange={handleToggleSyncSettings}
             />
             <SettingsRow label={_('Sync Strategy')}>
               <SettingsSelect

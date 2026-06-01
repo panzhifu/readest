@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { PiUserCircle, PiUserCircleCheck, PiGear } from 'react-icons/pi';
 import { PiSun, PiMoon } from 'react-icons/pi';
 import { TbSunMoon } from 'react-icons/tb';
-import { MdCloudSync, MdSync, MdSyncProblem } from 'react-icons/md';
+import { MdCloudSync, MdSync, MdSyncProblem, MdCloud, MdStorage } from 'react-icons/md';
 
 import { invoke, PermissionState } from '@tauri-apps/api/core';
 import { isTauriAppPlatform, isWebAppPlatform } from '@/services/environment';
@@ -34,6 +34,7 @@ import MenuItem from '@/components/MenuItem';
 import Quota from '@/components/Quota';
 import Menu from '@/components/Menu';
 import { type AppLockDialogMode, useAppLockStore } from '@/store/appLockStore';
+import type { SyncMode } from '@/types/settings';
 
 interface SettingsMenuProps {
   onPullLibrary: (fullRefresh?: boolean, verbose?: boolean) => void;
@@ -66,6 +67,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onPullLibrary, setIsDropdow
   const [savedBookCoverForLockScreen, setSavedBookCoverForLockScreen] = useState(
     settings.savedBookCoverForLockScreen || '',
   );
+  const [syncMode, setSyncMode] = useState<SyncMode>(settings.syncMode || 'cloud');
   const iconSize = useResponsiveSize(16);
 
   const [isRefreshingMetadata, setIsRefreshingMetadata] = useState(false);
@@ -176,6 +178,11 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onPullLibrary, setIsDropdow
     } else {
       optOutTelemetry();
     }
+  };
+
+  const handleSyncModeChange = (mode: SyncMode) => {
+    saveSysSettings(envConfig, 'syncMode', mode);
+    setSyncMode(mode);
   };
 
   const handleUpgrade = () => {
@@ -370,6 +377,32 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ onPullLibrary, setIsDropdow
         toggled={isAutoUpload}
         onClick={toggleAutoUploadBooks}
       />
+
+      <MenuItem
+        label={_('Sync Mode')}
+        Icon={syncMode === 'cloud' ? MdCloud : syncMode === 'webdav' ? MdStorage : MdCloudSync}
+      >
+        <ul className='ms-0 flex flex-col ps-0 before:hidden'>
+          <MenuItem
+            label={_('Official Cloud')}
+            Icon={MdCloud}
+            toggled={syncMode === 'cloud'}
+            onClick={() => handleSyncModeChange('cloud')}
+          />
+          <MenuItem
+            label={_('WebDAV')}
+            Icon={MdStorage}
+            toggled={syncMode === 'webdav'}
+            onClick={() => handleSyncModeChange('webdav')}
+          />
+          <MenuItem
+            label={_('Both')}
+            Icon={MdCloudSync}
+            toggled={syncMode === 'both'}
+            onClick={() => handleSyncModeChange('both')}
+          />
+        </ul>
+      </MenuItem>
 
       {isTauriAppPlatform() && !appService?.isMobile && (
         <MenuItem

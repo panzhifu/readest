@@ -9,6 +9,7 @@ import type { DictionarySettings, ImportedDictionary } from '@/services/dictiona
 
 export type ThemeType = 'light' | 'dark' | 'auto';
 export type LibraryViewModeType = 'grid' | 'list';
+export type SyncMode = 'cloud' | 'webdav' | 'both';
 export const LibrarySortByType = {
   Title: 'title',
   Author: 'author',
@@ -107,6 +108,7 @@ export interface WebDAVSettings {
   syncProgress?: boolean;
   syncNotes?: boolean;
   syncBooks?: boolean;
+  syncSettings?: boolean;
   // Conflict policy — same vocabulary as KOSync so users only learn one.
   strategy?: KOSyncStrategy;
   // Stable per-device id (uuidv4); written into library.json so we can tell
@@ -360,6 +362,12 @@ export interface SystemSettings {
    * replica sync. Future replica kinds add new SyncCategory members.
    */
   syncCategories?: Partial<Record<SyncCategory, boolean>>;
+  /**
+   * Sync mode: 'cloud' for official cloud sync, 'webdav' for WebDAV sync,
+   * 'both' for both. When 'webdav' is selected, settings sync via WebDAV
+   * instead of the official cloud service.
+   */
+  syncMode?: SyncMode;
 
   // Global read settings that apply to the reader page
   globalReadSettings: ReadSettings;

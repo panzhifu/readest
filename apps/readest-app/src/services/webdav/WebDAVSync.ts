@@ -22,6 +22,7 @@ import {
   buildBookDirPath,
   buildBookFilePath,
   buildLibraryPath,
+  buildSettingsPath,
   WEBDAV_BOOKS_DIR,
 } from './WebDAVPaths';
 
@@ -149,6 +150,17 @@ export interface PullResult {
   mergedNotes?: BookNote[];
   /** The remote's writerDeviceId, useful for diagnostics. */
   remoteDeviceId?: string;
+  /** True when a conflict was detected and resolved */
+  hadConflict?: boolean;
+  /** Details about the conflict if one occurred */
+  conflictDetails?: ConflictDetails;
+}
+
+export interface ConflictDetails {
+  type: 'progress' | 'notes' | 'mixed';
+  localUpdatedAt: number;
+  remoteUpdatedAt: number;
+  resolvedBy: 'local' | 'remote' | 'merged';
 }
 
 /**
@@ -172,32 +184,60 @@ export const pullBookConfig = async (
   if (!remote) {
     return { applied: false };
   }
-  // Top-level field merge: same per-config updatedAt LWW that the native
-  // cloud sync uses in useProgressSync.applyRemoteProgress.
+
   const remoteConfigUpdated = remote.config.updatedAt ?? remote.updatedAt;
   const localConfigUpdated = localConfig.updatedAt ?? 0;
-  // Drop null/undefined fields the server might have left in (e.g. an
-  // older client that didn't write `xpointer`). Crucially, this also
-  // means the spread below can NEVER introduce server-driven values for
-  // keys the server isn't supposed to care about (viewSettings,
-  // searchConfig, RSVP) — those keys never appear in `remote.config` to
-  // begin with because `buildRemotePayload` strips them on push. The
-  // invariant "wire envelope only carries reading state" therefore
-  // protects pull as well as push.
+
   const filteredRemote = Object.fromEntries(
     Object.entries(remote.config).filter(([, v]) => v !== null && v !== undefined),
   ) as Partial<BookConfig>;
+
+  let hadConflict = false;
+  let conflictDetails: ConflictDetails | undefined;
+
+  const hasProgressConflict =
+    localConfig.progress !== undefined &&
+    remote.config.progress !== undefined &&
+    JSON.stringify(localConfig.progress) !== JSON.stringify(remote.config.progress);
+
+  const hasNotesConflict =
+    localConfig.booknotes &&
+    remote.booknotes &&
+    localConfig.booknotes.length > 0 &&
+    remote.booknotes.length > 0;
+
+  if (hasProgressConflict || hasNotesConflict) {
+    hadConflict = true;
+    const conflictType: ConflictDetails['type'] =
+      hasProgressConflict && hasNotesConflict
+        ? 'mixed'
+        : hasProgressConflict
+          ? 'progress'
+          : 'notes';
+
+    conflictDetails = {
+      type: conflictType,
+      localUpdatedAt: localConfigUpdated,
+      remoteUpdatedAt: remoteConfigUpdated,
+      resolvedBy: remoteConfigUpdated >= localConfigUpdated ? 'remote' : 'local',
+    };
+  }
+
   const mergedConfig: BookConfig =
     remoteConfigUpdated >= localConfigUpdated
       ? ({ ...localConfig, ...filteredRemote } as BookConfig)
       : ({ ...filteredRemote, ...localConfig } as BookConfig);
+
   const mergedNotes = mergeNotes(localConfig.booknotes ?? [], remote.booknotes ?? []);
   mergedConfig.booknotes = mergedNotes;
+
   return {
     applied: true,
     mergedConfig,
     mergedNotes,
     remoteDeviceId: remote.writerDeviceId,
+    hadConflict,
+    conflictDetails,
   };
 };
 
@@ -573,14 +613,7 @@ export interface SyncLibraryResult {
   coversUploaded: number;
   booksDownloaded: number;
   failures: number;
-  /**
-   * Per-book failure breakdown for the diagnostic log surfaced in the
-   * Settings UI. Populated alongside `failures` so the user-facing log
-   * can show which books failed and why without needing to re-run with
-   * verbose console output. `reason` is a short single-line string —
-   * the caller is responsible for truncating server XML / stacks
-   * before persisting.
-   */
+  conflictsDetected: number;
   failedBooks: SyncFailureEntry[];
 }
 
@@ -648,6 +681,22 @@ export interface SyncLibraryOptions {
    * suitable for driving a UI like "Syncing 3 / 42 — Project Hail Mary".
    */
   onProgress?: (info: { book: Book; index: number; total: number; action?: string }) => void;
+  /**
+   * Optional callback to load app settings for synchronization.
+   * Used when syncSettings is enabled in WebDAVSettings.
+   */
+  loadSettings?: () => Promise<{
+    data: Record<string, unknown>;
+    timestamps: Record<string, number>;
+  } | null>;
+  /**
+   * Optional callback to save synced app settings.
+   * Used when syncSettings is enabled in WebDAVSettings.
+   */
+  saveSettings?: (
+    data: Record<string, unknown>,
+    timestamps: Record<string, number>,
+  ) => Promise<void>;
 }
 
 /**
@@ -719,6 +768,7 @@ export const syncLibrary = async (
     coversUploaded: 0,
     booksDownloaded: 0,
     failures: 0,
+    conflictsDetected: 0,
     failedBooks: [],
   };
 
@@ -741,31 +791,28 @@ export const syncLibrary = async (
   }
 
   const remoteBooksToDownload: Book[] = [];
-  // The remote source of truth for "what filename does this book actually
-  // have on disk" is the per-hash directory listing — NOT the book's title
-  // (which may have been written into library.json before makeSafeFilename
-  // existed, or by an older buggy build). We always resolve the path by
-  // listing the hash dir.
   const explicitRemotePaths = new Map<string, string>();
 
   if (canPull) {
     const client = toClientConfig(settings);
     const candidateHashes = new Set<string>();
 
-    // 1) Seed with hashes from the remote index (when the file exists).
     if (remoteIndex && remoteIndex.books) {
       for (const rb of remoteIndex.books) {
         if (!allBooksMap.has(rb.hash) && !rb.deletedAt) {
           candidateHashes.add(rb.hash);
-          // Provisionally register the indexed book — fields will be
-          // refreshed below once we've inspected the actual hash dir.
           allBooksMap.set(rb.hash, rb);
+        } else if (allBooksMap.has(rb.hash)) {
+          const localBook = allBooksMap.get(rb.hash)!;
+          if (rb.deletedAt && !localBook.deletedAt) {
+            localBook.deletedAt = rb.deletedAt;
+            localBook.downloadedAt = null;
+            localBook.coverDownloadedAt = null;
+          }
         }
       }
     }
 
-    // 2) Also scan the books/ directory so legacy uploads (no library.json
-    //    entry) and any drift between index and disk are still picked up.
     try {
       const booksDirPath = `${buildBasePath(settings.rootPath)}/${WEBDAV_BOOKS_DIR}`;
       const dirEntries = await listDirectory(client, booksDirPath);
@@ -775,7 +822,6 @@ export const syncLibrary = async (
         }
       }
     } catch (e) {
-      // 404 is normal if the user has never pushed anything yet.
       console.warn('WD library sync: failed to list books directory', e);
     }
 
@@ -884,6 +930,14 @@ export const syncLibrary = async (
               if (pullResult.applied && pullResult.mergedConfig) {
                 await options.saveBookConfig(rb, pullResult.mergedConfig);
                 result.configsDownloaded += 1;
+                if (pullResult.hadConflict) {
+                  result.conflictsDetected += 1;
+                  console.log(
+                    'WD library sync: conflict detected for',
+                    rb.hash,
+                    pullResult.conflictDetails,
+                  );
+                }
               }
             } catch (e) {
               console.warn('WD library sync: config download failed', rb.hash, e);
@@ -996,6 +1050,178 @@ export const syncLibrary = async (
       await pushLibraryIndex(settings, newIndex);
     } catch (e) {
       console.warn('WD library sync: failed to push index', e);
+    }
+  }
+
+  // Sync settings if enabled and callbacks are provided
+  if (settings.syncSettings && options.loadSettings && options.saveSettings) {
+    try {
+      await syncSettings(settings, {
+        loadSettings: options.loadSettings,
+        saveSettings: options.saveSettings,
+      });
+    } catch (e) {
+      console.warn('WD settings sync: failed to sync settings', e);
+    }
+  }
+
+  return result;
+};
+
+export interface RemoteSettings {
+  schemaVersion: 1;
+  data: Record<string, unknown>;
+  timestamps: Record<string, number>;
+  writerDeviceId: string;
+  updatedAt: number;
+}
+
+export interface SyncSettingsOptions {
+  loadSettings: () => Promise<{
+    data: Record<string, unknown>;
+    timestamps: Record<string, number>;
+  } | null>;
+  saveSettings: (
+    data: Record<string, unknown>,
+    timestamps: Record<string, number>,
+  ) => Promise<void>;
+}
+
+export const pullSettings = async (settings: WebDAVSettings): Promise<RemoteSettings | null> => {
+  const client = toClientConfig(settings);
+  const path = buildSettingsPath(settings.rootPath);
+  const raw = await getFile(client, path);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as RemoteSettings;
+    if (!parsed || parsed.schemaVersion !== 1) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+};
+
+export const pushSettings = async (
+  settings: WebDAVSettings,
+  data: Record<string, unknown>,
+  deviceId: string,
+): Promise<void> => {
+  const client = toClientConfig(settings);
+  const path = buildSettingsPath(settings.rootPath);
+  const dirs = ancestorsOf(path);
+  await ensureDirectory(client, dirs);
+
+  const now = Date.now();
+  const timestamps: Record<string, number> = {};
+  for (const key of Object.keys(data)) {
+    timestamps[key] = now;
+  }
+
+  const payload: RemoteSettings = {
+    schemaVersion: 1,
+    data,
+    timestamps,
+    writerDeviceId: deviceId,
+    updatedAt: now,
+  };
+  await putFile(client, path, JSON.stringify(payload));
+};
+
+export const syncSettings = async (
+  settings: WebDAVSettings,
+  options: SyncSettingsOptions,
+): Promise<{ pulled: boolean; pushed: boolean }> => {
+  const result = { pulled: false, pushed: false };
+  const client = toClientConfig(settings);
+
+  const path = buildSettingsPath(settings.rootPath);
+  let remoteSettings: RemoteSettings | null = null;
+
+  try {
+    const raw = await getFile(client, path);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw) as RemoteSettings;
+        if (parsed && parsed.schemaVersion === 1) {
+          remoteSettings = parsed;
+        }
+      } catch {
+        // Ignore parse errors
+      }
+    }
+  } catch (e) {
+    console.warn('WD settings sync: failed to pull settings', e);
+  }
+
+  const localResult = await options.loadSettings();
+  const localData = localResult?.data ?? {};
+  const localTimestamps = localResult?.timestamps ?? {};
+
+  const mergedData: Record<string, unknown> = { ...localData };
+  const mergedTimestamps: Record<string, number> = { ...localTimestamps };
+
+  let hasNewerRemote = false;
+
+  if (remoteSettings) {
+    const remoteData = remoteSettings.data ?? {};
+    const remoteTimestamps = remoteSettings.timestamps ?? {};
+
+    for (const key of Object.keys(remoteData)) {
+      const remoteValue = remoteData[key];
+      const remoteTime = remoteTimestamps[key] ?? 0;
+      const localTime = localTimestamps[key] ?? 0;
+
+      if (remoteTime > localTime) {
+        mergedData[key] = remoteValue;
+        mergedTimestamps[key] = remoteTime;
+        hasNewerRemote = true;
+      } else if (!(key in localData)) {
+        mergedData[key] = remoteValue;
+        mergedTimestamps[key] = remoteTime;
+        hasNewerRemote = true;
+      }
+    }
+
+    if (hasNewerRemote) {
+      await options.saveSettings(mergedData, mergedTimestamps);
+      result.pulled = true;
+    }
+  }
+
+  let hasNewerLocal = false;
+  const now = Date.now();
+
+  if (remoteSettings) {
+    const remoteData = remoteSettings.data ?? {};
+    const remoteTimestamps = remoteSettings.timestamps ?? {};
+
+    for (const key of Object.keys(localData)) {
+      const localTime = localTimestamps[key] ?? 0;
+      const remoteTime = remoteTimestamps[key] ?? 0;
+
+      if (localTime > remoteTime) {
+        hasNewerLocal = true;
+        mergedTimestamps[key] = now;
+        break;
+      } else if (!(key in remoteData)) {
+        hasNewerLocal = true;
+        mergedTimestamps[key] = now;
+        break;
+      }
+    }
+  } else {
+    hasNewerLocal = Object.keys(localData).length > 0;
+    for (const key of Object.keys(localData)) {
+      mergedTimestamps[key] = now;
+    }
+  }
+
+  if (hasNewerLocal) {
+    try {
+      await pushSettings(settings, mergedData, settings.deviceId || '');
+      result.pushed = true;
+    } catch (e) {
+      console.warn('WD settings sync: failed to push settings', e);
     }
   }
 
