@@ -35,3 +35,12 @@ export const DATA_SUBDIR = 'data';
 // ── URLs ──────────────────────────────────────────────────────────────
 export const DOWNLOAD_READEST_URL = 'https://readest.com/download';
 export const READEST_WEB_BASE_URL = 'https://web.readest.com';
+
+// ── Updater ───────────────────────────────────────────────────────────
+export const CHECK_UPDATE_INTERVAL_SEC = 3600;
+export const READEST_CHANGELOG_FILE = 'CHANGELOG.md';
+export const READEST_UPDATER_FILE = 'RELEASES';
+
+// ── Share ─────────────────────────────────────────────────────────────
+export const SHARE_DEFAULT_EXPIRATION_DAYS = 30;
+export const SHARE_EXPIRATION_DAYS = [7, 30, 90, 365];
