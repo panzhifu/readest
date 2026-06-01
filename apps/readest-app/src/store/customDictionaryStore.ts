@@ -7,9 +7,8 @@ import type {
 } from '@/services/dictionaries/types';
 import { BUILTIN_PROVIDER_IDS, BUILTIN_WEB_SEARCH_IDS } from '@/services/dictionaries/types';
 import { useSettingsStore } from './settingsStore';
-import { publishReplicaDelete, publishReplicaUpsert } from '@/services/sync/replicaPublish';
+
 import { DICTIONARY_KIND } from '@/services/sync/adapters/dictionary';
-import { markExplicitProviderOrderPublish } from '@/services/sync/replicaSettingsSync';
 
 const publishDictUpsert = (dict: ImportedDictionary): void => {
   if (!dict.contentId) return;
@@ -160,7 +159,6 @@ function toSettingsDict(dict: ImportedDictionary): ImportedDictionary {
 // fire-and-forget saves through it so the next loadCustomDictionaries
 // reads up-to-date settings.customDictionaries instead of wiping the
 // in-memory rows.
-import { getReplicaPersistEnv } from '@/services/sync/replicaPersist';
 
 /**
  * Look up a dict by its cross-device contentId, falling back to the

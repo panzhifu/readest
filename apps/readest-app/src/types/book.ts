@@ -101,6 +101,8 @@ export interface Book {
   downloadedAt?: number | null;
   coverDownloadedAt?: number | null;
   syncedAt?: number | null;
+  /** Device ID that last wrote/deleted this book in WebDAV sync. */
+  writerDeviceId?: string;
 
   lastUpdated?: number; // deprecated in favor of updatedAt
   progress?: [number, number]; // Add progress field: [current, total], 1-based page number

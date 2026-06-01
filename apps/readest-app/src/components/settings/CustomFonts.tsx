@@ -6,11 +6,11 @@ import { useEnv } from '@/context/EnvContext';
 import { useReaderStore } from '@/store/readerStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSettingsStore } from '@/store/settingsStore';
-import { useCustomFontStore } from '@/store/customFontStore';
+
 import { useFileSelector } from '@/hooks/useFileSelector';
 import { saveViewSettings } from '@/helpers/settings';
 import { CustomFont, mountCustomFont } from '@/styles/fonts';
-import { queueReplicaBinaryUpload } from '@/services/sync/replicaBinaryUpload';
+
 import { Tips } from './primitives';
 
 interface CustomFontsProps {

@@ -24,10 +24,14 @@ import { makeSafeFilename } from '@/utils/misc';
 
 export const WEBDAV_BASE_DIR = 'Readest';
 export const WEBDAV_BOOKS_DIR = 'books';
+export const WEBDAV_FONTS_DIR = 'fonts';
+export const WEBDAV_TEXTURES_DIR = 'textures';
 export const WEBDAV_LIBRARY_FILE = 'library.json';
 export const WEBDAV_SETTINGS_FILE = 'settings.json';
 export const WEBDAV_BOOK_CONFIG_FILE = 'config.json';
 export const WEBDAV_BOOK_COVER_FILE = 'cover.png';
+export const WEBDAV_DICTIONARY_FILE = 'dictionary.json';
+export const WEBDAV_OPDS_FILE = 'opds_catalogs.json';
 
 /**
  * Normalise the user-entered rootPath so the rest of the code can rely on
@@ -108,3 +112,29 @@ export const ancestorsOf = (absolutePath: string): string[] => {
   }
   return out;
 };
+
+// ── Extended sync paths ───────────────────────────────────────────────
+
+/** Absolute path of the fonts directory. */
+export const buildFontsDirPath = (rootPath: string): string =>
+  join(buildBasePath(rootPath), WEBDAV_FONTS_DIR);
+
+/** Absolute path of a font file. */
+export const buildFontFilePath = (rootPath: string, filename: string): string =>
+  join(buildFontsDirPath(rootPath), filename);
+
+/** Absolute path of the textures directory. */
+export const buildTexturesDirPath = (rootPath: string): string =>
+  join(buildBasePath(rootPath), WEBDAV_TEXTURES_DIR);
+
+/** Absolute path of a texture file. */
+export const buildTextureFilePath = (rootPath: string, filename: string): string =>
+  join(buildTexturesDirPath(rootPath), filename);
+
+/** Absolute path of dictionary.json */
+export const buildDictionaryPath = (rootPath: string): string =>
+  join(buildBasePath(rootPath), WEBDAV_DICTIONARY_FILE);
+
+/** Absolute path of opds_catalogs.json */
+export const buildOPDSPath = (rootPath: string): string =>
+  join(buildBasePath(rootPath), WEBDAV_OPDS_FILE);

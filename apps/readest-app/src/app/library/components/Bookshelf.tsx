@@ -53,7 +53,7 @@ import ModalPortal from '@/components/ModalPortal';
 import BookshelfItem, { generateBookshelfItems } from './BookshelfItem';
 import SelectModeActions from './SelectModeActions';
 import ShareBookDialog from './ShareBookDialog';
-import { useAuth } from '@/context/AuthContext';
+
 import GroupingModal from './GroupingModal';
 import SetStatusAlert from './SetStatusAlert';
 

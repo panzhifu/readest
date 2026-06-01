@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Popup from '@/components/Popup';
 import { Position } from '@/utils/sel';
-import { useAuth } from '@/context/AuthContext';
+
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useTranslator } from '@/hooks/useTranslator';
+
 import { TRANSLATOR_LANGS } from '@/services/constants';
 import {
   UseTranslatorOptions,

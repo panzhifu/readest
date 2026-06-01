@@ -5,13 +5,13 @@ import posthog from 'posthog-js';
 import i18n from '@/i18n/i18n';
 import { useEffect, useState } from 'react';
 import { IconContext } from 'react-icons';
-import { AuthProvider } from '@/context/AuthContext';
+
 import { useEnv } from '@/context/EnvContext';
 import { CSPostHogProvider } from '@/context/PHContext';
 import { SyncProvider } from '@/context/SyncContext';
 import { initSystemThemeListener, loadDataTheme } from '@/store/themeStore';
 import { useSettingsStore } from '@/store/settingsStore';
-import { useCustomTextureStore } from '@/store/customTextureStore';
+
 import { useSafeAreaInsets } from '@/hooks/useSafeAreaInsets';
 import { useDefaultIconSize } from '@/hooks/useResponsiveSize';
 import { useBackgroundTexture } from '@/hooks/useBackgroundTexture';
@@ -35,10 +35,8 @@ import AppLockScreen from '@/components/AppLockScreen';
 import AppLockDialog from '@/components/settings/AppLockDialog';
 import PassphrasePrompt from '@/components/PassphrasePrompt';
 import TelemetryConsentDialog from '@/components/TelemetryConsentDialog';
-import { upgradeToKeychainIfAvailable } from '@/libs/crypto/passphrase';
-import { cryptoSession } from '@/libs/crypto/session';
+
 import { useAppLockStore } from '@/store/appLockStore';
-import { initSettingsSync } from '@/services/sync/replicaSettingsSync';
 
 // One-time, on first launch after this feature ships, decide how to handle
 // PostHog telemetry for the current install:

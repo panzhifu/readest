@@ -9,7 +9,7 @@ import type { DictionarySettings, ImportedDictionary } from '@/services/dictiona
 
 export type ThemeType = 'light' | 'dark' | 'auto';
 export type LibraryViewModeType = 'grid' | 'list';
-export type SyncMode = 'cloud' | 'webdav' | 'both';
+export type SyncMode = 'webdav';
 export const LibrarySortByType = {
   Title: 'title',
   Author: 'author',
@@ -109,6 +109,10 @@ export interface WebDAVSettings {
   syncNotes?: boolean;
   syncBooks?: boolean;
   syncSettings?: boolean;
+  syncFonts?: boolean;
+  syncTextures?: boolean;
+  syncDictionary?: boolean;
+  syncOPDS?: boolean;
   // Conflict policy — same vocabulary as KOSync so users only learn one.
   strategy?: KOSyncStrategy;
   // Stable per-device id (uuidv4); written into library.json so we can tell

@@ -1,6 +1,6 @@
 import { partialMD5 } from '@/utils/md5';
 import { uniqueId } from '@/utils/misc';
-import { queueReplicaBinaryUpload } from '@/services/sync/replicaBinaryUpload';
+
 import type { EnvConfigType } from '@/services/environment';
 import type { BaseDir } from '@/types/system';
 

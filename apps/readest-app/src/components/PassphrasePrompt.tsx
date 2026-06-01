@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import ModalPortal from '@/components/ModalPortal';
 import { useTranslation } from '@/hooks/useTranslation';
-import { setPassphrasePrompter } from '@/services/sync/passphraseGate';
-import type { PassphrasePromptKind } from '@/services/sync/passphraseGate';
 
 interface PendingPrompt {
   kind: PassphrasePromptKind;

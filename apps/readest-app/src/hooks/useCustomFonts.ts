@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useEnv } from '@/context/EnvContext';
 import { useSettingsStore } from '@/store/settingsStore';
-import { useCustomFontStore } from '@/store/customFontStore';
 
 /**
  * Hydrate the custom-font store from persisted `settings.customFonts`.

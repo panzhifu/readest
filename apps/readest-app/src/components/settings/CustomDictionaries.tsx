@@ -26,7 +26,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useFileSelector } from '@/hooks/useFileSelector';
-import { useCustomDictionaryStore } from '@/store/customDictionaryStore';
+
 import { eventDispatcher } from '@/utils/event';
 import { evictProvider, isSystemDictionaryEnabled } from '@/services/dictionaries/registry';
 import { BUILTIN_PROVIDER_IDS } from '@/services/dictionaries/types';
@@ -34,7 +34,7 @@ import {
   isSystemDictionaryAvailable,
   isSystemDictionarySupported,
 } from '@/services/dictionaries/systemDictionary';
-import { queueDictionaryBinaryUpload } from '@/services/sync/replicaBinaryUpload';
+
 import type { ImportedDictionary, WebSearchEntry } from '@/services/dictionaries/types';
 import {
   getBuiltinWebSearch,

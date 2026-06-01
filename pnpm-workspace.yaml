@@ -5,6 +5,7 @@ packages:
   - packages/foliate-js
 
 allowBuilds:
+  better-sqlite3: set this to true or false
   core-js: true
   edgedriver: true
   esbuild: true

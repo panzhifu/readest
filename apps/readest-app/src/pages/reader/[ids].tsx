@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { AuthProvider } from '@/context/AuthContext';
+
 import { EnvProvider } from '@/context/EnvContext';
 import { CSPostHogProvider } from '@/context/PHContext';
 import { SyncProvider } from '@/context/SyncContext';

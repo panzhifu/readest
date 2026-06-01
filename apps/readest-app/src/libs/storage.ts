@@ -1,6 +1,6 @@
 import { getAPIBaseUrl, isWebAppPlatform } from '@/services/environment';
 import { AppService } from '@/types/system';
-import { getUserID } from '@/utils/access';
+
 import { fetchWithAuth } from '@/utils/fetch';
 import {
   tauriUpload,

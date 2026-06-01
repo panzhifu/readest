@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { embed, embedMany, createGateway } from 'ai';
-import { validateUserAndToken } from '@/utils/access';
 
 export async function POST(req: Request): Promise<Response> {
   try {

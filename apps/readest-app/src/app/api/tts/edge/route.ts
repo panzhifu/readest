@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { EdgeSpeechTTS, EdgeTTSPayload } from '@/libs/edgeTTS';
-import { validateUserAndToken } from '@/utils/access';
 
 const getLangFromVoice = (voiceId: string): string => {
   const match = voiceId.match(/^([a-z]{2}-[A-Z]{2})/);

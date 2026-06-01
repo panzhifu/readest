@@ -1,5 +1,5 @@
 import { getAPIBaseUrl } from '@/services/environment';
-import { getUserID } from '@/utils/access';
+
 import { fetchWithAuth } from '@/utils/fetch';
 
 const API_ENDPOINT = getAPIBaseUrl() + '/user/delete';

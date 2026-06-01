@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { Book } from '@/types/book';
-import { useSync } from '@/hooks/useSync';
+
 import { useEnv } from '@/context/EnvContext';
-import { useAuth } from '@/context/AuthContext';
+
 import { useLibraryStore } from '@/store/libraryStore';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SYNC_BOOKS_INTERVAL_SEC } from '@/services/constants';

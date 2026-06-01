@@ -1,7 +1,7 @@
 import { md5 } from '@/utils/md5';
-import { buildLocalDictFromRow } from '@/services/sync/replicaDictionaryApply';
+
 import type { ImportedDictionary } from '@/services/dictionaries/types';
-import type { ReplicaAdapter } from '@/services/sync/replicaRegistry';
+
 import type { ReplicaRow } from '@/types/replica';
 
 export const DICTIONARY_KIND = 'dictionary';

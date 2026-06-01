@@ -6,7 +6,7 @@ import { FiSearch } from 'react-icons/fi';
 import { MdClose } from 'react-icons/md';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCommandPalette } from './CommandPaletteProvider';
-import { CommandSearchResult, getCategoryLabel, CommandCategory } from '@/services/commandRegistry';
+
 import HighlightChars from './HighlightChars';
 
 const CommandPalette: React.FC = () => {

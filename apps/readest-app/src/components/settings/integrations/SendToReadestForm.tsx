@@ -3,11 +3,11 @@ import { useRouter } from 'next/navigation';
 import { MdContentCopy, MdRefresh, MdCheck, MdClose, MdAdd } from 'react-icons/md';
 import { RiSendPlaneLine } from 'react-icons/ri';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useAuth } from '@/context/AuthContext';
+
 import { fetchWithAuth } from '@/utils/fetch';
 import { getAPIBaseUrl } from '@/services/environment';
 import { isInboxDrainEnabled, setInboxDrainEnabled } from '@/services/send/devicePrefs';
-import { getAccessToken, getUserProfilePlan, isEmailInPlan } from '@/utils/access';
+
 import { navigateToLogin, navigateToProfile } from '@/utils/nav';
 import { eventDispatcher } from '@/utils/event';
 import type { UserPlan } from '@/types/quota';
