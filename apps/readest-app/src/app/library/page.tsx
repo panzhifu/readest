@@ -62,7 +62,6 @@ import { AboutWindow } from '@/components/AboutWindow';
 import { KeyboardShortcutsHelp } from '@/components/KeyboardShortcutsHelp';
 
 import { UpdaterWindow } from '@/components/UpdaterWindow';
-import { CatalogDialog } from './components/OPDSDialog';
 import { MigrateDataWindow } from './components/MigrateDataWindow';
 import { BackupWindow } from './components/BackupWindow';
 import { CacheManagerWindow } from './components/CacheManagerWindow';
@@ -175,9 +174,6 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
   useCustomFonts();
   // Enable WebDAV library sync to automatically pull books from WebDAV server
   useWebDAVLibrarySync();
-  const [showCatalogManager, setShowCatalogManager] = useState(
-    searchParams?.get('opds') === 'true',
-  );
   const [showImportFromUrl, setShowImportFromUrl] = useState(false);
   const [loading, setLoading] = useState(false);
   // Seed from the library store: if we already have books in memory (the
@@ -506,17 +502,6 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
     return false;
   };
 
-  const handleShowOPDSDialog = () => {
-    setShowCatalogManager(true);
-  };
-
-  const handleDismissOPDSDialog = () => {
-    setShowCatalogManager(false);
-    const params = new URLSearchParams(searchParams?.toString());
-    params.delete('opds');
-    navigateToLibrary(router, `${params.toString()}`);
-  };
-
   useEffect(() => {
     if (pendingNavigationBookIds) {
       const bookIds = pendingNavigationBookIds;
@@ -731,7 +716,12 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
             groupId: resolvedGroupId,
             groupName: resolvedGroupName,
           },
-          { appService, settings: liveSettings, isLoggedIn: !!user, appBooksPrefix },
+          {
+            appService,
+            settings: liveSettings,
+            isLoggedIn: !!user,
+            appBooksPrefix,
+          },
         );
         if (!book) return null;
         successfulImports.push(book.title);
@@ -870,13 +860,21 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
     return async (book: Book, syncBooks = true) => {
       const deletionMessages = {
         both: _('Book deleted: {{title}}', { title: book.title }),
-        cloud: _('Deleted cloud backup of the book: {{title}}', { title: book.title }),
-        local: _('Deleted local copy of the book: {{title}}', { title: book.title }),
+        cloud: _('Deleted cloud backup of the book: {{title}}', {
+          title: book.title,
+        }),
+        local: _('Deleted local copy of the book: {{title}}', {
+          title: book.title,
+        }),
       };
       const deletionFailMessages = {
         both: _('Failed to delete book: {{title}}', { title: book.title }),
-        cloud: _('Failed to delete cloud backup of the book: {{title}}', { title: book.title }),
-        local: _('Failed to delete local copy of the book: {{title}}', { title: book.title }),
+        cloud: _('Failed to delete cloud backup of the book: {{title}}', {
+          title: book.title,
+        }),
+        local: _('Failed to delete local copy of the book: {{title}}', {
+          title: book.title,
+        }),
       };
 
       try {
@@ -969,7 +967,10 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
     console.log('[clip] start', { url });
     setIsSelectMode(false);
     const t0 = performance.now();
-    const html = await invoke<string>('clip_url', { url, options: getClipOptions(_) });
+    const html = await invoke<string>('clip_url', {
+      url,
+      options: getClipOptions(_),
+    });
     console.log('[clip] fetched', {
       bytes: html.length,
       ms: Math.round(performance.now() - t0),
@@ -983,7 +984,10 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
       ms: Math.round(performance.now() - t1),
     });
     const groupId = searchParams?.get('group') || '';
-    console.log('[clip] importing locally', { name: book.file.name, groupId: groupId || null });
+    console.log('[clip] importing locally', {
+      name: book.file.name,
+      groupId: groupId || null,
+    });
     await importBooks([{ file: book.file }], groupId);
     console.log('[clip] done');
   };
@@ -1353,7 +1357,6 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
             appService?.canReadExternalDir ? handleImportBooksFromDirectory : undefined
           }
           onImportBookFromUrl={isTauriAppPlatform() ? () => setShowImportFromUrl(true) : undefined}
-          onOpenCatalogManager={handleShowOPDSDialog}
           onToggleSelectMode={() => handleSetSelectMode(!isSelectMode)}
           onSelectAll={handleSelectAll}
           onDeselectAll={handleDeselectAll}
@@ -1478,7 +1481,6 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
       <BackupWindow onPullLibrary={pullLibrary} />
       <CacheManagerWindow />
       {isSettingsDialogOpen && <SettingsDialog bookKey={''} />}
-      {showCatalogManager && <CatalogDialog onClose={handleDismissOPDSDialog} />}
       {failedImportsModal && (
         <FailedImportsDialog
           failedImports={failedImportsModal}
