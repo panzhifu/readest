@@ -1,13 +1,11 @@
 'use client';
 
 import '@/utils/polyfill';
-import posthog from 'posthog-js';
 import i18n from '@/i18n/i18n';
 import { useEffect, useState } from 'react';
 import { IconContext } from 'react-icons';
 
 import { useEnv } from '@/context/EnvContext';
-import { CSPostHogProvider } from '@/context/PHContext';
 import { SyncProvider } from '@/context/SyncContext';
 import { initSystemThemeListener, loadDataTheme } from '@/store/themeStore';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -39,13 +37,11 @@ import TelemetryConsentDialog from '@/components/TelemetryConsentDialog';
 import { useAppLockStore } from '@/store/appLockStore';
 
 // One-time, on first launch after this feature ships, decide how to handle
-// PostHog telemetry for the current install:
 //   - Existing user (settings file already on disk): preserve their current
 //     `telemetryEnabled` setting and persist a matching decision so we don't
 //     reconsider on every boot.
 //   - New user: silently opt 90% out and skip the prompt; show the consent
 //     dialog to the remaining 10%. Until the dialog is resolved their state
-//     is `pending` (opt-out at the PostHog layer).
 // If a decision has already been recorded, this is a no-op.
 const finalizeTelemetryDecision = ({
   appService,
@@ -66,15 +62,12 @@ const finalizeTelemetryDecision = ({
   if (existing !== null) return;
 
   if (!isNewUser) {
-    // Existing user: don't change anything they had set. Sync PostHog to
     // their saved preference and record the decision so we stop checking.
     if (settings.telemetryEnabled) {
       localStorage.setItem(TELEMETRY_OPT_OUT_KEY, 'false');
-      posthog.opt_in_capturing();
       setTelemetryDecision('opt-in');
     } else {
       localStorage.setItem(TELEMETRY_OPT_OUT_KEY, 'true');
-      posthog.opt_out_capturing();
       setTelemetryDecision('opt-out');
     }
     return;
@@ -87,7 +80,6 @@ const finalizeTelemetryDecision = ({
     onShowPrompt();
   } else {
     localStorage.setItem(TELEMETRY_OPT_OUT_KEY, 'true');
-    posthog.opt_out_capturing();
     setTelemetryDecision('opt-out');
     // Persist the off-by-default to the settings file directly. The settings
     // store isn't seeded yet at this point in boot, so saveSysSettings would
@@ -219,33 +211,31 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
   const appShellHidden = !isLockInitialized || !isUnlocked;
 
   return (
-    <CSPostHogProvider>
-      <AuthProvider>
-        <IconContext.Provider value={{ size: `${iconSize}px` }}>
-          <SyncProvider>
-            <DropdownProvider>
-              <CommandPaletteProvider>
-                <div
-                  aria-hidden={appShellHidden}
-                  style={appShellHidden ? { display: 'none' } : undefined}
-                >
-                  {children}
-                  <CommandPalette />
-                  <AtmosphereOverlay />
-                  <PassphrasePrompt />
-                </div>
-                <AppLockDialog />
-                <TelemetryConsentDialog
-                  open={showTelemetryConsent}
-                  onClose={() => setShowTelemetryConsent(false)}
-                />
-                {showAppLockScreen && <AppLockScreen />}
-              </CommandPaletteProvider>
-            </DropdownProvider>
-          </SyncProvider>
-        </IconContext.Provider>
-      </AuthProvider>
-    </CSPostHogProvider>
+    <AuthProvider>
+      <IconContext.Provider value={{ size: `${iconSize}px` }}>
+        <SyncProvider>
+          <DropdownProvider>
+            <CommandPaletteProvider>
+              <div
+                aria-hidden={appShellHidden}
+                style={appShellHidden ? { display: 'none' } : undefined}
+              >
+                {children}
+                <CommandPalette />
+                <AtmosphereOverlay />
+                <PassphrasePrompt />
+              </div>
+              <AppLockDialog />
+              <TelemetryConsentDialog
+                open={showTelemetryConsent}
+                onClose={() => setShowTelemetryConsent(false)}
+              />
+              {showAppLockScreen && <AppLockScreen />}
+            </CommandPaletteProvider>
+          </DropdownProvider>
+        </SyncProvider>
+      </IconContext.Provider>
+    </AuthProvider>
   );
 };
 
