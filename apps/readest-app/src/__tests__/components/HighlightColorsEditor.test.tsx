@@ -3,7 +3,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 
 import HighlightColorsEditor from '@/components/settings/color/HighlightColorsEditor';
-import { HIGHLIGHT_COLOR_HEX } from '@/services/constants';
+
 import type { DefaultHighlightColor, HighlightColor, UserHighlightColor } from '@/types/book';
 
 vi.mock('@/hooks/useTranslation', () => ({

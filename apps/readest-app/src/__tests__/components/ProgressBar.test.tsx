@@ -2,7 +2,7 @@ import { cleanup, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import ProgressBar from '@/app/reader/components/ProgressBar';
-import { DEFAULT_VIEW_CONFIG } from '@/services/constants';
+
 import type { BookProgress, ViewSettings } from '@/types/book';
 
 const saveViewSettings = vi.fn();

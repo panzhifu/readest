@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { convertBlobUrlToDataUrl, BookDoc, getDirection } from '@/libs/document';
-import { BOOK_IDS_SEPARATOR } from '@/services/constants';
+
 import { BookConfig, PageInfo } from '@/types/book';
 import { FoliateView, wrappedFoliateView } from '@/types/view';
 import { Insets } from '@/types/misc';

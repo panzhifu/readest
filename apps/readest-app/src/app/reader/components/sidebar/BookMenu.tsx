@@ -13,7 +13,7 @@ import { useParallelViewStore } from '@/store/parallelViewStore';
 import { isWebAppPlatform } from '@/services/environment';
 import { eventDispatcher } from '@/utils/event';
 import { FIXED_LAYOUT_FORMATS } from '@/types/book';
-import { DOWNLOAD_READEST_URL } from '@/services/constants';
+
 import { saveViewSettings } from '@/helpers/settings';
 import { setProofreadRulesVisibility } from '@/app/reader/components/ProofreadRules';
 import { setAboutDialogVisible } from '@/components/AboutWindow';

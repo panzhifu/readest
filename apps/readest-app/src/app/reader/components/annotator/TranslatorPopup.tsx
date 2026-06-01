@@ -5,7 +5,6 @@ import { Position } from '@/utils/sel';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTranslation } from '@/hooks/useTranslation';
 
-import { TRANSLATOR_LANGS } from '@/services/constants';
 import {
   UseTranslatorOptions,
   getTranslatorDisplayLabel,

@@ -12,7 +12,7 @@ import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSettingsStore } from '@/store/settingsStore';
 import { revealItemInDir } from '@tauri-apps/plugin-opener';
-import { DATA_SUBDIR } from '@/services/constants';
+
 import { FileItem } from '@/types/system';
 import { getDirPath } from '@/utils/path';
 import { formatBytes } from '@/utils/book';

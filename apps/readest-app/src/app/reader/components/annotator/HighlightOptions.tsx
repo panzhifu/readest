@@ -10,7 +10,7 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { useDragScroll } from '@/hooks/useDragScroll';
 import { saveSysSettings } from '@/helpers/settings';
-import { LONG_HOLD_THRESHOLD } from '@/services/constants';
+
 import { getHighlightColorLabel } from '../../utils/annotatorUtil';
 import { stubTranslation as _ } from '@/utils/misc';
 

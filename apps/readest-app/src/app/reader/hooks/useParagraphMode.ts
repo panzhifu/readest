@@ -6,7 +6,6 @@ import { eventDispatcher } from '@/utils/event';
 import { saveViewSettings } from '@/helpers/settings';
 import { ParagraphIterator } from '@/utils/paragraph';
 import { getParagraphPresentation } from '@/utils/paragraphPresentation';
-import { DEFAULT_PARAGRAPH_MODE_CONFIG } from '@/services/constants';
 
 interface UseParagraphModeProps {
   bookKey: string;

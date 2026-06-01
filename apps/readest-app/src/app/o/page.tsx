@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { IoAlertCircleOutline, IoBookOutline, IoOpenOutline } from 'react-icons/io5';
-import { DOWNLOAD_READEST_URL, READEST_WEB_BASE_URL } from '@/services/constants';
+
 import { useTranslation } from '@/hooks/useTranslation';
 import { buildAnnotationAppUrl } from '@/utils/deeplink';
 import { BrandHeader } from '@/components/landing/BrandHeader';

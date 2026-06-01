@@ -1,6 +1,6 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ReadwiseClient } from '@/services/readwise/ReadwiseClient';
-import { READWISE_API_BASE_URL } from '@/services/constants';
+
 import type { ReadwiseSettings } from '@/types/settings';
 import type { Book, BookNote } from '@/types/book';
 

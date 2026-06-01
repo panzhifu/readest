@@ -9,7 +9,7 @@ import { useCommandPalette } from '@/components/command-palette';
 import { tauriHandleClose, tauriHandleToggleFullScreen, tauriQuitApp } from '@/utils/window';
 import { eventDispatcher } from '@/utils/event';
 import { setShortcutsDialogVisible } from '@/components/KeyboardShortcutsHelp';
-import { MAX_ZOOM_LEVEL, MIN_ZOOM_LEVEL, ZOOM_STEP } from '@/services/constants';
+
 import { getParagraphActionForKey } from '@/utils/paragraphPresentation';
 import { viewPagination } from './usePagination';
 import useShortcuts from '@/hooks/useShortcuts';

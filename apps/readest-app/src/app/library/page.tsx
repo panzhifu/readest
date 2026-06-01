@@ -48,7 +48,7 @@ import { useKeyDownActions } from '@/hooks/useKeyDownActions';
 import { SelectedFile, useFileSelector } from '@/hooks/useFileSelector';
 import { lockScreenOrientation, selectDirectory } from '@/utils/bridge';
 import { requestStoragePermission } from '@/utils/permission';
-import { SUPPORTED_BOOK_EXTS } from '@/services/constants';
+
 import {
   tauriHandleClose,
   tauriHandleSetAlwaysOnTop,

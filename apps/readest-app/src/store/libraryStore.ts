@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { Book, BookGroupType, BooksGroup, ReadingStatus } from '@/types/book';
 import { EnvConfigType, isTauriAppPlatform } from '@/services/environment';
-import { BOOK_UNGROUPED_NAME } from '@/services/constants';
+
 import { md5Fingerprint } from '@/utils/md5';
 
 interface LibraryState {

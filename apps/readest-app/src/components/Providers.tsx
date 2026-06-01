@@ -25,7 +25,7 @@ import {
   setTelemetryDecision,
   TELEMETRY_OPT_OUT_KEY,
 } from '@/utils/telemetry';
-import { SETTINGS_FILENAME } from '@/services/constants';
+
 import type { AppService } from '@/types/system';
 import type { SystemSettings } from '@/types/settings';
 import { DropdownProvider } from '@/context/DropdownContext';

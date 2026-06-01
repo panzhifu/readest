@@ -1,4 +1,3 @@
-import { HIGHLIGHT_COLOR_HEX } from '@/services/constants';
 import { BookNote, DEFAULT_HIGHLIGHT_COLORS, HighlightColor, HighlightStyle } from '@/types/book';
 import { uniqueId } from '@/utils/misc';
 import { SystemSettings } from '@/types/settings';

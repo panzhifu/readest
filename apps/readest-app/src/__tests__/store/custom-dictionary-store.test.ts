@@ -5,7 +5,6 @@ vi.mock('@/services/sync/replicaPublish', () => ({
   publishReplicaUpsert: vi.fn(),
 }));
 
-import { useCustomDictionaryStore, findDictionaryByContentId } from '@/store/customDictionaryStore';
 import { enableReplicaAutoPersist } from '@/services/sync/replicaPersist';
 import { BUILTIN_WEB_SEARCH_IDS } from '@/services/dictionaries/types';
 import { publishReplicaUpsert } from '@/services/sync/replicaPublish';

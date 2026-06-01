@@ -2,7 +2,6 @@ import { AppService } from '@/types/system';
 import { isTauriAppPlatform } from '@/services/environment';
 import { basename } from '@tauri-apps/api/path';
 import { stubTranslation as _ } from '@/utils/misc';
-import { BOOK_ACCEPT_FORMATS, SUPPORTED_BOOK_EXTS } from '@/services/constants';
 
 export interface FileSelectorOptions {
   type: SelectionType;

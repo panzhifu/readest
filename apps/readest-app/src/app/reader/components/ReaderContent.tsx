@@ -26,7 +26,6 @@ import {
   navigateToLibrary,
 } from '@/utils/nav';
 import { clearDiscordPresence } from '@/utils/discord';
-import { BOOK_IDS_SEPARATOR } from '@/services/constants';
 
 import ShareBookDialog from '@/app/library/components/ShareBookDialog';
 

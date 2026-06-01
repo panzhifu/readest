@@ -14,7 +14,6 @@ import {
 import { LuBookImage } from 'react-icons/lu';
 import { MdInsertDriveFile } from 'react-icons/md';
 import React from 'react';
-import { SUPPORTED_BOOK_EXTS } from '@/services/constants';
 
 /**
  * Pure presentational helpers for WebDAVBrowsePane. Lives apart from the

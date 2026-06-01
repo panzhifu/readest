@@ -11,7 +11,6 @@ import { IoShareOutline } from 'react-icons/io5';
 import { TbArrowAutofitWidth } from 'react-icons/tb';
 import { TbColumns1, TbColumns2 } from 'react-icons/tb';
 
-import { MAX_ZOOM_LEVEL, MIN_ZOOM_LEVEL, ZOOM_STEP } from '@/services/constants';
 import { useEnv } from '@/context/EnvContext';
 
 import { useThemeStore } from '@/store/themeStore';

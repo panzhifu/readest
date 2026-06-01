@@ -5,7 +5,7 @@ import { useEnv } from '@/context/EnvContext';
 
 import { useLibraryStore } from '@/store/libraryStore';
 import { useTranslation } from '@/hooks/useTranslation';
-import { SYNC_BOOKS_INTERVAL_SEC } from '@/services/constants';
+
 import { throttle } from '@/utils/throttle';
 import { debounce } from '@/utils/debounce';
 import { eventDispatcher } from '@/utils/event';

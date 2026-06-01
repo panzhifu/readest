@@ -73,8 +73,6 @@ vi.mock('@/services/environment', async (importOriginal) => {
 });
 
 import { EnvProvider } from '@/context/EnvContext';
-import { AuthProvider } from '@/context/AuthContext';
-import { DEFAULT_SYSTEM_SETTINGS } from '@/services/constants';
 
 function renderWithProviders(ui: React.ReactNode) {
   return render(

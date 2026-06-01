@@ -1,4 +1,3 @@
-import { DOUBLE_CLICK_INTERVAL_THRESHOLD_MS, LONG_HOLD_THRESHOLD } from '@/services/constants';
 import { eventDispatcher } from '@/utils/event';
 
 let lastClickTime = 0;

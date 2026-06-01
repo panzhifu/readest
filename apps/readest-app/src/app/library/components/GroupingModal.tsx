@@ -11,7 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useLibraryStore } from '@/store/libraryStore';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { useKeyDownActions } from '@/hooks/useKeyDownActions';
-import { BOOK_UNGROUPED_ID, BOOK_UNGROUPED_NAME } from '@/services/constants';
+
 import { buildGroupNameUpdatedAt, getBreadcrumbs } from '../utils/libraryUtils';
 
 interface GroupingModalProps {

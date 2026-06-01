@@ -6,7 +6,7 @@ import {
   BookProgress,
   WritingMode,
 } from '@/types/book';
-import { SUPPORTED_LANGS } from '@/services/constants';
+
 import { getLocale, getUserLang, makeSafeFilename } from './misc';
 import { getStorageType } from './storage';
 import { getDirFromLanguage } from './rtl';

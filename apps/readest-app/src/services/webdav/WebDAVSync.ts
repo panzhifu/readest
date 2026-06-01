@@ -697,6 +697,17 @@ export interface SyncLibraryOptions {
     data: Record<string, unknown>,
     timestamps: Record<string, number>,
   ) => Promise<void>;
+  /** Extended sync callbacks */
+  listLocalFonts?: () => Promise<string[]>;
+  loadFontFile?: (filename: string) => Promise<BookFileSource | null>;
+  saveFontFile?: (filename: string, bytes: ArrayBuffer) => Promise<void>;
+  listLocalTextures?: () => Promise<string[]>;
+  loadTextureFile?: (filename: string) => Promise<BookFileSource | null>;
+  saveTextureFile?: (filename: string, bytes: ArrayBuffer) => Promise<void>;
+  loadDictionaryConfig?: () => Promise<Record<string, unknown> | null>;
+  saveDictionaryConfig?: (config: Record<string, unknown>) => Promise<void>;
+  loadOPDSConfig?: () => Promise<Record<string, unknown> | null>;
+  saveOPDSConfig?: (config: Record<string, unknown>) => Promise<void>;
 }
 
 /**
@@ -980,7 +991,12 @@ export const syncLibrary = async (
   if (canPush && booksToPush.length > 0) {
     for (let i = 0; i < booksToPush.length; i += 1) {
       const book = booksToPush[i]!;
-      options.onProgress?.({ book, index: i, total: booksToPush.length, action: 'uploading' });
+      options.onProgress?.({
+        book,
+        index: i,
+        total: booksToPush.length,
+        action: 'uploading',
+      });
       // Track which step we were in when an exception escapes the inner
       // try, so the user-facing log can pinpoint whether config / file /
       // cover upload tripped the wire. Cover failures are caught locally

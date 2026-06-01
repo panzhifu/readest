@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useReaderStore } from '@/store/readerStore';
 import { useBookDataStore } from '@/store/bookDataStore';
 import { eventDispatcher } from '@/utils/event';
-import { MAX_ZOOM_LEVEL, MIN_ZOOM_LEVEL } from '@/services/constants';
+
 import { createWheelGestureDetector } from '@/app/reader/utils/wheelGesture';
 import { dispatchTouchInterceptors, TouchDetail } from './useTouchInterceptor';
 

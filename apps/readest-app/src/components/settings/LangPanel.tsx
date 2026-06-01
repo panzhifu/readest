@@ -13,7 +13,7 @@ import {
 } from '@/services/translators';
 import { useResetViewSettings } from '@/hooks/useResetSettings';
 import { useKeyDownActions } from '@/hooks/useKeyDownActions';
-import { TRANSLATED_LANGS, TRANSLATOR_LANGS } from '@/services/constants';
+
 import { ConvertChineseVariant } from '@/types/book';
 import { SettingsPanelPanelProp } from './SettingsDialog';
 import { getDirFromLanguage } from '@/utils/rtl';

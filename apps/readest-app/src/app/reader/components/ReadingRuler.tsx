@@ -6,7 +6,7 @@ import { FoliateView } from '@/types/view';
 import { useEnv } from '@/context/EnvContext';
 import { useReaderStore } from '@/store/readerStore';
 import { saveViewSettings } from '@/helpers/settings';
-import { READING_RULER_COLORS } from '@/services/constants';
+
 import { throttle } from '@/utils/throttle';
 import { eventDispatcher } from '@/utils/event';
 import { useTouchInterceptor } from '../hooks/useTouchInterceptor';

@@ -116,7 +116,6 @@ vi.mock('@/utils/event', () => ({
 }));
 
 import { useProgressSync } from '@/app/reader/hooks/useProgressSync';
-import { SYNC_PROGRESS_INTERVAL_SEC } from '@/services/constants';
 
 const flushAutoSync = async () => {
   await act(async () => {

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { CustomTheme } from '@/styles/themes';
 import { md5Fingerprint } from '@/utils/md5';
-import { CUSTOM_THEME_TEMPLATES } from '@/services/constants';
+
 import { useSettingsStore } from '@/store/settingsStore';
 import clsx from 'clsx';
 import ColorInput from './ColorInput';

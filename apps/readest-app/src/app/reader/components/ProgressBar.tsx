@@ -9,7 +9,7 @@ import { useBookDataStore } from '@/store/bookDataStore';
 import { formatNumber, formatProgress } from '@/utils/progress';
 import { saveViewSettings } from '@/helpers/settings';
 import { eventDispatcher } from '@/utils/event';
-import { SIZE_PER_LOC, SIZE_PER_TIME_UNIT } from '@/services/constants';
+
 import type { ProgressBarMode } from '@/types/book.ts';
 import StatusInfo from './StatusInfo.tsx';
 

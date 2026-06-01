@@ -23,7 +23,7 @@ import { useAtmosphereStore } from '@/store/atmosphereStore';
 import { DefaultHighlightColor, HighlightColor, UserHighlightColor } from '@/types/book';
 import clsx from 'clsx';
 import { SettingLabel } from './primitives';
-import { HIGHLIGHT_COLOR_HEX } from '@/services/constants';
+
 import ThemeEditor from './color/ThemeEditor';
 import ThemeModeSelector from './color/ThemeModeSelector';
 import ThemeColorSelector from './color/ThemeColorSelector';

@@ -13,7 +13,7 @@ import { getOSPlatform } from '@/utils/misc';
 import { throttle } from '@/utils/throttle';
 import { navigateToReader, showReaderWindow } from '@/utils/nav';
 import { LibraryCoverFitType, LibraryViewModeType } from '@/types/settings';
-import { BOOK_UNGROUPED_ID, BOOK_UNGROUPED_NAME } from '@/services/constants';
+
 import { FILE_REVEAL_LABELS, FILE_REVEAL_PLATFORMS } from '@/utils/os';
 import { Book, BooksGroup, ReadingStatus } from '@/types/book';
 import { md5Fingerprint } from '@/utils/md5';

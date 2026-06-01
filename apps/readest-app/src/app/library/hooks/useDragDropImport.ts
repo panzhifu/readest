@@ -6,7 +6,7 @@ import { SelectedFile } from '@/hooks/useFileSelector';
 import { isTauriAppPlatform } from '@/services/environment';
 import { getCurrentWebview } from '@tauri-apps/api/webview';
 import { useTranslation } from '@/hooks/useTranslation';
-import { BOOK_ACCEPT_FORMATS, SUPPORTED_BOOK_EXTS } from '@/services/constants';
+
 import { useSearchParams } from 'next/navigation';
 
 const hasSupportedBookExt = (name: string) => {
