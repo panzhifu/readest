@@ -170,7 +170,10 @@ const WebDAVForm: React.FC<WebDAVFormProps> = ({ onBack }) => {
     setSettings(newSettings);
     await saveSettings(envConfig, newSettings);
     setIsConnecting(false);
-    eventDispatcher.dispatch('toast', { type: 'info', message: _('Connected') });
+    eventDispatcher.dispatch('toast', {
+      type: 'info',
+      message: _('Connected'),
+    });
   };
 
   const handleDisconnect = async () => {
@@ -187,7 +190,10 @@ const WebDAVForm: React.FC<WebDAVFormProps> = ({ onBack }) => {
     // with a single click — they can still toggle visibility via the
     // eye icon.
     setShowPassword(false);
-    eventDispatcher.dispatch('toast', { type: 'info', message: _('Disconnected') });
+    eventDispatcher.dispatch('toast', {
+      type: 'info',
+      message: _('Disconnected'),
+    });
   };
 
   // —— Sync sub-toggles & manual triggers ——
@@ -218,6 +224,12 @@ const WebDAVForm: React.FC<WebDAVFormProps> = ({ onBack }) => {
   const handleToggleSyncBooks = () => persistWebdav({ syncBooks: !(stored?.syncBooks ?? false) });
   const handleToggleSyncSettings = () =>
     persistWebdav({ syncSettings: !(stored?.syncSettings ?? false) });
+  const handleToggleSyncFonts = () => persistWebdav({ syncFonts: !(stored?.syncFonts ?? false) });
+  const handleToggleSyncTextures = () =>
+    persistWebdav({ syncTextures: !(stored?.syncTextures ?? false) });
+  const handleToggleSyncDictionary = () =>
+    persistWebdav({ syncDictionary: !(stored?.syncDictionary ?? false) });
+  const handleToggleSyncOPDS = () => persistWebdav({ syncOPDS: !(stored?.syncOPDS ?? false) });
   const handleStrategyChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     await persistWebdav({ strategy: e.target.value as typeof stored.strategy });
   };
@@ -470,7 +482,11 @@ const WebDAVForm: React.FC<WebDAVFormProps> = ({ onBack }) => {
         parts.push(_('downloaded {{n}} book(s)', { n: result.booksDownloaded }));
       }
       if (result.configsDownloaded > 0) {
-        parts.push(_('pulled progress for {{n}} book(s)', { n: result.configsDownloaded }));
+        parts.push(
+          _('pulled progress for {{n}} book(s)', {
+            n: result.configsDownloaded,
+          }),
+        );
       }
       if (result.configsUploaded > 0) {
         parts.push(_('pushed {{n}} config(s)', { n: result.configsUploaded }));
@@ -608,6 +624,30 @@ const WebDAVForm: React.FC<WebDAVFormProps> = ({ onBack }) => {
               description={_('Sync app settings across devices via WebDAV.')}
               checked={stored.syncSettings ?? false}
               onChange={handleToggleSyncSettings}
+            />
+            <SettingsSwitchRow
+              label={_('Sync Fonts')}
+              description={_('Sync custom fonts across devices.')}
+              checked={stored.syncFonts ?? false}
+              onChange={handleToggleSyncFonts}
+            />
+            <SettingsSwitchRow
+              label={_('Sync Textures')}
+              description={_('Sync custom background textures.')}
+              checked={stored.syncTextures ?? false}
+              onChange={handleToggleSyncTextures}
+            />
+            <SettingsSwitchRow
+              label={_('Sync Dictionary Config')}
+              description={_('Sync dictionary settings and providers.')}
+              checked={stored.syncDictionary ?? false}
+              onChange={handleToggleSyncDictionary}
+            />
+            <SettingsSwitchRow
+              label={_('Sync OPDS Catalogs')}
+              description={_('Sync OPDS/Calibre catalog configurations.')}
+              checked={stored.syncOPDS ?? false}
+              onChange={handleToggleSyncOPDS}
             />
             <SettingsRow label={_('Sync Strategy')}>
               <SettingsSelect

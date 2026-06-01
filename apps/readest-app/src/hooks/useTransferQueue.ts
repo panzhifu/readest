@@ -3,7 +3,7 @@ import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from './useTranslation';
 import { useLibraryStore } from '@/store/libraryStore';
 import { useTransferStore, TransferType } from '@/store/transferStore';
-import { transferManager } from '@/services/transferManager';
+
 import { Book } from '@/types/book';
 
 export function useTransferQueue(libraryLoaded = true, delayInit = 0) {

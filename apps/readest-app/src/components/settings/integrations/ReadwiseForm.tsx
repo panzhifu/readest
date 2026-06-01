@@ -5,7 +5,7 @@ import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSettingsStore } from '@/store/settingsStore';
 import { eventDispatcher } from '@/utils/event';
-import { ReadwiseClient } from '@/services/readwise';
+
 import { READWISE_API_BASE_URL } from '@/services/constants';
 import SubPageHeader from '../SubPageHeader';
 import { SectionTitle, SettingLabel, Tips } from '../primitives';

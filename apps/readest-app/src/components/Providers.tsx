@@ -14,7 +14,7 @@ import { useSettingsStore } from '@/store/settingsStore';
 
 import { useSafeAreaInsets } from '@/hooks/useSafeAreaInsets';
 import { useDefaultIconSize } from '@/hooks/useResponsiveSize';
-import { useBackgroundTexture } from '@/hooks/useBackgroundTexture';
+
 import { useEinkMode } from '@/hooks/useEinkMode';
 import { getLocale } from '@/utils/misc';
 import { getDirFromUILanguage } from '@/utils/rtl';
@@ -33,7 +33,7 @@ import { CommandPaletteProvider, CommandPalette } from '@/components/command-pal
 import AtmosphereOverlay from '@/components/AtmosphereOverlay';
 import AppLockScreen from '@/components/AppLockScreen';
 import AppLockDialog from '@/components/settings/AppLockDialog';
-import PassphrasePrompt from '@/components/PassphrasePrompt';
+
 import TelemetryConsentDialog from '@/components/TelemetryConsentDialog';
 
 import { useAppLockStore } from '@/store/appLockStore';

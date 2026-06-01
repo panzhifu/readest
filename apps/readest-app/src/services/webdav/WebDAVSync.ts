@@ -1065,6 +1065,13 @@ export const syncLibrary = async (
     }
   }
 
+  // Sync fonts, textures, dictionary, OPDS (best-effort)
+  try {
+    const { syncExtendedData } = await import('./WebDAVExtendedSync');
+    await syncExtendedData(settings, options);
+  } catch (e) {
+    console.warn('WD extended sync: failed', e);
+  }
   return result;
 };
 

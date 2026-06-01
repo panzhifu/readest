@@ -4,7 +4,7 @@ import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSettingsStore } from '@/store/settingsStore';
 import { eventDispatcher } from '@/utils/event';
-import { HardcoverClient, HardcoverSyncMapStore } from '@/services/hardcover';
+
 import SubPageHeader from '../SubPageHeader';
 import { SectionTitle, SettingLabel } from '../primitives';
 

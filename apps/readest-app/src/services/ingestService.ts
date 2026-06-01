@@ -1,7 +1,6 @@
 import type { Book, BookLookupIndex } from '@/types/book';
 import type { AppService, OsPlatform } from '@/types/system';
 import type { SystemSettings } from '@/types/settings';
-import { transferManager } from '@/services/transferManager';
 
 export interface IngestFileDeps {
   appService: AppService;
