@@ -384,6 +384,9 @@ importers:
       tauri-plugin-device-info-api:
         specifier: ^1.0.1
         version: 1.0.1
+      tauri-plugin-sqlite:
+        specifier: link:./src-tauri/plugins/tauri-plugin-sqlite
+        version: link:src-tauri/plugins/tauri-plugin-sqlite
       tinycolor2:
         specifier: ^1.6.0
         version: 1.6.0

@@ -1,12 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { LoadOptions } from 'tauri-plugin-turso';
+import type { LoadOptions } from 'tauri-plugin-sqlite';
 import type { DatabaseOpts } from '@/types/database';
 
 // Capture the argument Database.load receives so we can assert opts forwarding.
-// The plugin signature is Database.load(pathOrOptions: string | LoadOptions) — a
-// single argument that's either a path string (no opts) or a LoadOptions object
-// (path embedded in the object).
-vi.mock('tauri-plugin-turso', () => {
+vi.mock('tauri-plugin-sqlite', () => {
   const loadCalls: Array<string | LoadOptions> = [];
   const mockDb = {
     execute: vi.fn(async () => ({ rowsAffected: 0, lastInsertId: 0 })),
@@ -26,10 +23,10 @@ vi.mock('tauri-plugin-turso', () => {
   };
 });
 
-describe('NativeDatabaseService.open forwards opts to tauri-plugin-turso', () => {
+describe('NativeDatabaseService.open forwards opts to tauri-plugin-sqlite', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
-    const mod = await import('tauri-plugin-turso');
+    const mod = await import('tauri-plugin-sqlite');
     (mod as unknown as { __loadCalls: unknown[] }).__loadCalls.length = 0;
   });
 
@@ -37,7 +34,7 @@ describe('NativeDatabaseService.open forwards opts to tauri-plugin-turso', () =>
     const { NativeDatabaseService } = await import('@/services/database/nativeDatabaseService');
     await NativeDatabaseService.open('sqlite:test.db');
 
-    const mod = await import('tauri-plugin-turso');
+    const mod = await import('tauri-plugin-sqlite');
     const loadCalls = (mod as unknown as { __loadCalls: Array<string | LoadOptions> }).__loadCalls;
     expect(loadCalls).toHaveLength(1);
     expect(loadCalls[0]).toBe('sqlite:test.db');
@@ -48,7 +45,7 @@ describe('NativeDatabaseService.open forwards opts to tauri-plugin-turso', () =>
     const opts: DatabaseOpts = { experimental: ['index_method'] };
     await NativeDatabaseService.open('sqlite:reedy.db', opts);
 
-    const mod = await import('tauri-plugin-turso');
+    const mod = await import('tauri-plugin-sqlite');
     const loadCalls = (mod as unknown as { __loadCalls: Array<string | LoadOptions> }).__loadCalls;
     expect(loadCalls).toHaveLength(1);
     expect(loadCalls[0]).toEqual({
@@ -65,16 +62,18 @@ describe('NativeDatabaseService.open forwards opts to tauri-plugin-turso', () =>
     const opts: DatabaseOpts = { readonly: true, timeout: 5000 };
     await NativeDatabaseService.open('sqlite:plain.db', opts);
 
-    const mod = await import('tauri-plugin-turso');
+    const mod = await import('tauri-plugin-sqlite');
     const loadCalls = (mod as unknown as { __loadCalls: Array<string | LoadOptions> }).__loadCalls;
     expect(loadCalls[0]).toBe('sqlite:plain.db');
   });
 
   it('passes a plain path string when experimental is an empty array', async () => {
     const { NativeDatabaseService } = await import('@/services/database/nativeDatabaseService');
-    await NativeDatabaseService.open('sqlite:empty-exp.db', { experimental: [] });
+    await NativeDatabaseService.open('sqlite:empty-exp.db', {
+      experimental: [],
+    });
 
-    const mod = await import('tauri-plugin-turso');
+    const mod = await import('tauri-plugin-sqlite');
     const loadCalls = (mod as unknown as { __loadCalls: Array<string | LoadOptions> }).__loadCalls;
     expect(loadCalls[0]).toBe('sqlite:empty-exp.db');
   });

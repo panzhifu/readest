@@ -1,0 +1,17 @@
+{
+  "permissions": [
+    {
+      "identifier": "default",
+      "description": "Allows all SQLite operations",
+      "allow": [
+        { "command": "load" },
+        { "command": "execute" },
+        { "command": "select" },
+        { "command": "batch" },
+        { "command": "close" },
+        { "command": "ping" },
+        { "command": "get_config" }
+      ]
+    }
+  ]
+}

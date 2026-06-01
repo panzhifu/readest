@@ -1,4 +1,4 @@
-import { Database, LoadOptions, QueryResult } from 'tauri-plugin-turso';
+import { Database, LoadOptions, QueryResult } from 'tauri-plugin-sqlite';
 import { DatabaseService, DatabaseExecResult, DatabaseRow, DatabaseOpts } from '@/types/database';
 
 export class NativeDatabaseService implements DatabaseService {
@@ -9,14 +9,6 @@ export class NativeDatabaseService implements DatabaseService {
   }
 
   static async open(path: string, opts?: DatabaseOpts): Promise<NativeDatabaseService> {
-    // Translate the cross-platform DatabaseOpts (from @readest/turso-database-common,
-    // used by WASM bindings) to tauri-plugin-turso's LoadOptions. The two interfaces
-    // have diverged: `experimental` is the same field name with compatible types
-    // (literal union vs `string[]`); `encryption` shapes differ entirely (native
-    // 'aes256cbc' + byte-array key vs WASM 'aes256gcm'/etc + hex key) and is not
-    // wired in MVP — revisit alongside any Reedy.db encryption work. Skip the
-    // translation when no relevant opts are set so existing callers preserve their
-    // plain path-string call shape.
     const loadArg: string | LoadOptions = opts?.experimental?.length
       ? { path, experimental: opts.experimental as string[] }
       : path;
