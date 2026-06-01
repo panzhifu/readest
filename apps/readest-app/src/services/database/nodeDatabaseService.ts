@@ -1,46 +1,37 @@
+import initSqlJs, { Database as SqlJsDatabase } from 'sql.js';
 import { DatabaseService, DatabaseExecResult, DatabaseRow, DatabaseOpts } from '@/types/database';
 
-interface TursoRunResult {
-  changes: number;
-  lastInsertRowid: number;
-}
-
-interface TursoStatement {
-  run(...params: unknown[]): Promise<TursoRunResult>;
-  all(...params: unknown[]): Promise<Record<string, unknown>[]>;
-}
-
-interface TursoDatabase {
-  prepare(sql: string): TursoStatement;
-  exec(sql: string): Promise<void>;
-  close(): Promise<void>;
-}
-
 /**
- * DatabaseService implementation backed by @tursodatabase/database (Node.js native).
- * Uses the same turso engine and API surface as the browser-based
- * @readest/turso-database-wasm used by WebDatabaseService.
+ * DatabaseService implementation backed by sql.js (pure WASM, no native deps).
+ * FTS5 is supported — sql.js compiles with it by default.
  */
 export class NodeDatabaseService implements DatabaseService {
-  private db: TursoDatabase;
+  private db: SqlJsDatabase;
 
-  private constructor(db: TursoDatabase) {
+  private constructor(db: SqlJsDatabase) {
     this.db = db;
   }
 
-  static async open(path: string, opts?: DatabaseOpts): Promise<NodeDatabaseService> {
-    const mod = await import('@tursodatabase/database');
-    const db = (await mod.connect(path, opts)) as unknown as TursoDatabase;
+  static async open(path: string, _opts?: DatabaseOpts): Promise<NodeDatabaseService> {
+    const SQL = await initSqlJs();
+    const db = new SQL.Database();
+    db.run('PRAGMA journal_mode = WAL');
+    db.run('PRAGMA foreign_keys = ON');
     return new NodeDatabaseService(db);
   }
 
   async execute(sql: string, params: unknown[] = []): Promise<DatabaseExecResult> {
     const stmt = this.db.prepare(sql);
-    const result = await stmt.run(...params);
-    return {
-      rowsAffected: result.changes,
-      lastInsertId: Number(result.lastInsertRowid),
-    };
+    if (params.length > 0) stmt.bind(params);
+    stmt.step();
+    const rowsAffected = this.db.getRowsModified();
+    stmt.free();
+
+    // get last insert rowid via a separate query
+    const lastIdRow = this.db.exec('SELECT last_insert_rowid() AS id');
+    const lastInsertId = Number(lastIdRow[0]?.values[0]?.[0] ?? 0);
+
+    return { rowsAffected, lastInsertId };
   }
 
   async select<T extends DatabaseRow = DatabaseRow>(
@@ -48,24 +39,29 @@ export class NodeDatabaseService implements DatabaseService {
     params: unknown[] = [],
   ): Promise<T[]> {
     const stmt = this.db.prepare(sql);
-    const rows = await stmt.all(...params);
-    return rows as T[];
+    if (params.length > 0) stmt.bind(params);
+    const results: T[] = [];
+    while (stmt.step()) {
+      results.push(stmt.getAsObject() as T);
+    }
+    stmt.free();
+    return results;
   }
 
   async batch(statements: string[]): Promise<void> {
-    await this.db.exec('BEGIN');
+    this.db.run('BEGIN');
     try {
       for (const sql of statements) {
-        await this.db.exec(sql);
+        this.db.run(sql);
       }
-      await this.db.exec('COMMIT');
-    } catch (error: unknown) {
-      await this.db.exec('ROLLBACK');
-      throw error;
+      this.db.run('COMMIT');
+    } catch (e) {
+      this.db.run('ROLLBACK');
+      throw e;
     }
   }
 
   async close(): Promise<void> {
-    await this.db.close();
+    this.db.close();
   }
 }

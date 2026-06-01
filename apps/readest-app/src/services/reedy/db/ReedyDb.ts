@@ -165,17 +165,19 @@ export class ReedyDb {
     });
   }
 
-  // Native (rusqlite) backend needs FTS5 virtual table;
-  // turso WASM has its own tantivy-FTS via CREATE INDEX USING fts.
-  // Both paths are best-effort — the try/catch in hybridSearch gracefully
-  // returns empty FTS results when either index is unavailable.
+  // Native (rusqlite) backend needs FTS5 virtual table.
+  // sql.js doesn't compile with FTS5 — flag so we skip FTS operations.
+  private fts5Available = false;
+
   private async ensureFts5Table(): Promise<void> {
+    if (this.fts5Available) return;
     try {
       await this.db.execute(
         "CREATE VIRTUAL TABLE IF NOT EXISTS reedy_book_chunks_fts USING fts5(chunk_id UNINDEXED, text, tokenize='ngram')",
       );
+      this.fts5Available = true;
     } catch {
-      // turso WASM doesn't support FTS5 — ignore
+      // FTS5 not available on this backend
     }
   }
 
@@ -192,11 +194,13 @@ export class ReedyDb {
              (id, book_hash, section_index, chapter_title, start_cfi, end_cfi, position_index, text, token_count)
            VALUES (${sqlQuote(c.id)}, ${sqlQuote(c.bookHash)}, ${c.sectionIndex}, ${sqlQuoteNullable(c.chapterTitle)}, ${sqlQuote(c.startCfi)}, ${sqlQuote(c.endCfi)}, ${c.positionIndex}, ${sqlQuote(c.text)}, ${c.tokenCount})`,
     );
-    // Sync into FTS5 index — chunk_id lets us JOIN back for hybrid search
-    for (const c of chunks) {
-      stmts.push(
-        `INSERT INTO reedy_book_chunks_fts(chunk_id, text) VALUES (${sqlQuote(c.id)}, ${sqlQuote(c.text)})`,
-      );
+    // Sync into FTS5 index — silently skip if unavailable (sql.js without FTS5).
+    if (this.fts5Available) {
+      for (const c of chunks) {
+        stmts.push(
+          `INSERT INTO reedy_book_chunks_fts(chunk_id, text) VALUES (${sqlQuote(c.id)}, ${sqlQuote(c.text)})`,
+        );
+      }
     }
     await this.enqueue(() => this.db.batch(stmts));
   }
