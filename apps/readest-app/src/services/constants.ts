@@ -44,3 +44,17 @@ export const READEST_UPDATER_FILE = 'RELEASES';
 // ── Share ─────────────────────────────────────────────────────────────
 export const SHARE_DEFAULT_EXPIRATION_DAYS = 30;
 export const SHARE_EXPIRATION_DAYS = [7, 30, 90, 365];
+
+// ── Fonts ─────────────────────────────────────────────────────────────
+export const SERIF_FONTS: string[] = [];
+export const SANS_SERIF_FONTS: string[] = [];
+export const MONOSPACE_FONTS: string[] = [];
+export const CJK_SERIF_FONTS: string[] = [];
+export const CJK_SANS_SERIF_FONTS: string[] = [];
+export const CJK_EXCLUDE_PATTENS: RegExp[] = [];
+export const CJK_FONTS_PATTENS: RegExp[] = [];
+export const WINDOWS_FONTS: string[] = [];
+export const MACOS_FONTS: string[] = [];
+export const LINUX_FONTS: string[] = [];
+export const IOS_FONTS: string[] = [];
+export const NON_FREE_FONTS: string[] = [];
