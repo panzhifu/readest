@@ -80,7 +80,7 @@ const migrations: Record<SchemaType, MigrationEntry[]> = {
         CREATE INDEX IF NOT EXISTS idx_chunks_book_position
         ON reedy_book_chunks (book_hash, position_index);
 
-        CREATE VIRTUAL TABLE IF NOT EXISTS reedy_book_chunks_fts USING fts5(text, tokenize='ngram')
+        CREATE VIRTUAL TABLE IF NOT EXISTS reedy_book_chunks_fts USING fts5(chunk_id UNINDEXED, text, tokenize='ngram')
       `,
     },
     {
