@@ -41,9 +41,7 @@ const nextConfig = {
       // Without an alias, webpack walks up from that source location and
       // can't find fflate (only installed in this app's node_modules).
       fflate: path.resolve(__dirname, "node_modules/fflate"),
-      ...(appPlatform !== "web"
-        ? { "@tursodatabase/database-wasm": false }
-        : {}),
+      "@tursodatabase/database-wasm": false,
     };
     return config;
   },
@@ -53,9 +51,7 @@ const nextConfig = {
       // Turbopack rejects absolute paths in resolveAlias ("server relative
       // imports not implemented") — use a project-relative path.
       fflate: "./node_modules/fflate",
-      ...(appPlatform !== "web"
-        ? { "@tursodatabase/database-wasm": "./src/utils/stub.ts" }
-        : {}),
+      "@tursodatabase/database-wasm": "./src/utils/stub.ts",
     },
   },
   transpilePackages: [
